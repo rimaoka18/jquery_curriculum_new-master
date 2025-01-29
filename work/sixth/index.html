@@ -17,6 +17,76 @@
   </div>
   <script src="../../common/js/jquery.js"></script>
   <script>
+    let failHtml =
+    `
+    <p class="text">逃げられてしまった...</p>
+    <button class="btn mt" data-js="reset">戻る</button>
+    `
+
+    let encountHtml =
+      `
+      <p class="name"></p>
+      <div>
+        <img class="img" src="" alt="">
+      </div>
+      <div>
+        <button class="btn" id="catch">捕まえる</button>
+        <button class="btn" data-js="reset">逃げる</button>
+      </div>
+      `
+    let doneHtml =
+    `
+    <p class="name">ゲットしました</p>
+    <div>
+      <img class="img" src="" alt="">
+    </div>
+    <button class="btn" data-js="reset">戻る</button>
+    `
+    $(document).ready(function () {
+      $('#wrapper').on('click', '#pokemon_search', function () {
+        var randomPokemonId = Math.floor(Math.random() * 151) + 1;
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/pokemon/' + randomPokemonId,
+          method: 'GET'
+        })
+          .done(function (res) {
+            $('.wrapper').html(encountHtml);
+            $('.name').text(res.name);
+            $('.img').attr('src', res.sprites.front_default);
+          })
+          .fail(function (err) {
+            $('.wrapper').html(failHtml);
+          });
+      });
+
+      $('#wrapper').on('click', '#catch', function () {
+        let isCatchSuccessful = Math.random() < 0.5;
+
+        if (isCatchSuccessful) {
+          $.ajax({
+            url: 'https://pokeapi.co/api/v2/item/4',
+            method: 'GET'
+          })
+            .done(function (pokeballRes) {
+              $('.wrapper').html(doneHtml);
+              $('.img').attr('src', pokeballRes.sprites.default);
+            })
+            .fail(function (err) {
+              $('.wrapper').html(failHtml);
+            });
+        } else {
+          $('.wrapper').html(failHtml);
+        }
+      });
+
+      $('#wrapper').on('click', '[data-js="reset"]', function () {
+        $('.wrapper').html(`
+         <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
+       `);
+      });
+    });
+
+
   </script>
 </body>
 
