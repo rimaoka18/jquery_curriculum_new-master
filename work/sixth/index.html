@@ -19,63 +19,65 @@
 
   <script>
 
-  function getFailedMessageHtml() {
-    return `
-      <p class="text">逃げられてしまった...</p>
-      <button class="btn mt" data-js="reset">戻る</button>
-    `;
-  }
-
-  function getPokemonInitialDisplayHtml(name, imageURL) {
-  return `
-    <p class="name">${name || '名前なし'}</p>
-    <div>
-      <img class="img" src="${imageURL || ''}" alt="">
-    </div>
-    <div>
-      <button class="btn" id="catch">捕まえる</button>
-      <button class="btn" data-js="reset">逃げる</button>
-    </div>
-  `;
-}
-
-  function getSuccessMessageHtml(imageUrl) {
-    return `
-      <p class="name">ゲットしました</p>
-      <div>
-        <img class="img" src="${imageUrl}" alt="">
-      </div>
-      <button class="btn" data-js="reset">戻る</button>
-    `;
-  }
-
     $(document).ready(function () {
+      function getFailedMessageHtml() {
+        return `
+        <p class="text">逃げられてしまった...</p>
+        <button class="btn mt" data-js="reset">戻る</button>
+      `;
+      }
+
+      function getPokemonInitialDisplayHtml(name, imageURL) {
+        return `
+      <p class="name">${name || '名前なし'}</p>
+      <div>
+        <img class="img" src="${imageURL || ''}" alt="">
+      </div>
+      <div>
+        <button class="btn" id="catch">捕まえる</button>
+        <button class="btn" data-js="reset">逃げる</button>
+      </div>
+    `;
+      }
+
+      function getSuccessMessageHtml(imageUrl) {
+        return `
+        <p class="name">ゲットしました</p>
+        <div>
+          <img class="img" src="${imageUrl}" alt="">
+        </div>
+        <button class="btn" data-js="reset">戻る</button>
+      `;
+      }
+
       $('#wrapper').on('click', '#pokemon_search', function () {
-        var randomPokemonId = Math.floor(Math.random() * 151) + 1;
+        let randomPokemonId = Math.floor(Math.random() * 151) + 1;
         $.ajax({
           url: 'https://pokeapi.co/api/v2/pokemon/' + randomPokemonId,
           method: 'GET'
         })
-        .done(function (res) {
-          let pokemonName = res.name;
-          let pokemonImageUrl = res.sprites.front_default;
+          .done(function (res) {
+            let pokemonName = res.name;
+            let pokemonImageUrl = res.sprites.front_default;
 
-          $('.wrapper').html(getPokemonInitialDisplayHtml(pokemonName, pokemonImageUrl));
-        $.ajax({
-          url: res.species.url,
-          method: 'GET'
-        })
-          .done(function (speciesRes) {
-            let jpName = speciesRes.names.find(name => name.language.name === 'ja').name;
-            $('.name').text(jpName);
+            $('.wrapper').html(getPokemonInitialDisplayHtml(pokemonName, pokemonImageUrl));
+
+            $.ajax({
+              url: res.species.url,
+              method: 'GET'
+            })
+              .done(function (speciesRes) {
+                let jpName = speciesRes.names.find(name => name.language.name === 'ja').name;
+                $('.name').text(jpName);
+              })
+              .fail(function () {
+                $('.name').text('名前の取得に失敗しました');
+              });
           })
+
           .fail(function () {
-            $('.name').text('名前の取得に失敗しました');
+            $('.wrapper').html(getFailedMessageHtml());
           });
-      })
-      .fail(function () {
-        $('.wrapper').html(getFailedMessageHtml());
-      });
       });
 
       $('#wrapper').on('click', '#catch', function () {
