@@ -16,32 +16,39 @@
     <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
   </div>
   <script src="../../common/js/jquery.js"></script>
-  <script>
-    let failHtml =
-    `
-    <p class="text">逃げられてしまった...</p>
-    <button class="btn mt" data-js="reset">戻る</button>
-    `
 
-    let encountHtml =
-      `
-      <p class="name"></p>
-      <div>
-        <img class="img" src="" alt="">
-      </div>
-      <div>
-        <button class="btn" id="catch">捕まえる</button>
-        <button class="btn" data-js="reset">逃げる</button>
-      </div>
-      `
-    let doneHtml =
-    `
-    <p class="name">ゲットしました</p>
+  <script>
+
+  function getFailedMessageHtml() {
+    return `
+      <p class="text">逃げられてしまった...</p>
+      <button class="btn mt" data-js="reset">戻る</button>
+    `;
+  }
+
+  function getPokemonInitialDisplayHtml(name, imageURL) {
+  return `
+    <p class="name">${name || '名前なし'}</p>
     <div>
-      <img class="img" src="" alt="">
+      <img class="img" src="${imageURL || ''}" alt="">
     </div>
-    <button class="btn" data-js="reset">戻る</button>
-    `
+    <div>
+      <button class="btn" id="catch">捕まえる</button>
+      <button class="btn" data-js="reset">逃げる</button>
+    </div>
+  `;
+}
+
+  function getSuccessMessageHtml(imageUrl) {
+    return `
+      <p class="name">ゲットしました</p>
+      <div>
+        <img class="img" src="${imageUrl}" alt="">
+      </div>
+      <button class="btn" data-js="reset">戻る</button>
+    `;
+  }
+
     $(document).ready(function () {
       $('#wrapper').on('click', '#pokemon_search', function () {
         var randomPokemonId = Math.floor(Math.random() * 151) + 1;
@@ -50,8 +57,10 @@
           method: 'GET'
         })
         .done(function (res) {
-        $('.wrapper').html(encountHtml);
-        $('.img').attr('src', res.sprites.front_default);
+          let pokemonName = res.name;
+          let pokemonImageUrl = res.sprites.front_default;
+
+          $('.wrapper').html(getPokemonInitialDisplayHtml(pokemonName, pokemonImageUrl));
         $.ajax({
           url: res.species.url,
           method: 'GET'
@@ -65,7 +74,7 @@
           });
       })
       .fail(function () {
-        $('.wrapper').html(failHtml);
+        $('.wrapper').html(getFailedMessageHtml());
       });
       });
 
@@ -78,14 +87,13 @@
             method: 'GET'
           })
             .done(function (pokeballRes) {
-              $('.wrapper').html(doneHtml);
-              $('.img').attr('src', pokeballRes.sprites.default);
+              $('.wrapper').html(getSuccessMessageHtml(pokeballRes.sprites.default));
             })
             .fail(function (err) {
-              $('.wrapper').html(failHtml);
+              $('.wrapper').html(getFailedMessageHtml());
             });
         } else {
-          $('.wrapper').html(failHtml);
+          $('.wrapper').html(getFailedMessageHtml());
         }
       });
 
@@ -95,7 +103,6 @@
        `);
       });
     });
-
 
   </script>
 </body>
