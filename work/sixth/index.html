@@ -21,33 +21,36 @@
 
     $(document).ready(function () {
       function getFailedMessageHtml() {
-        return `
-        <p class="text">逃げられてしまった...</p>
-        <button class="btn mt" data-js="reset">戻る</button>
-      `;
+        const html = `
+          <p class="text">逃げられてしまった...</p>
+          <button class="btn mt" data-js="reset">戻る</button>
+        `;
+        $('.wrapper').html(html);
       }
 
       function getPokemonInitialDisplayHtml(name, imageURL) {
-        return `
-      <p class="name">${name || '名前なし'}</p>
-      <div>
-        <img class="img" src="${imageURL || ''}" alt="">
-      </div>
-      <div>
-        <button class="btn" id="catch">捕まえる</button>
-        <button class="btn" data-js="reset">逃げる</button>
-      </div>
-    `;
+        const html = `
+          <p class="name">${name || '名前なし'}</p>
+          <div>
+            <img class="img" src="${imageURL || ''}" alt="">
+          </div>
+          <div>
+            <button class="btn" id="catch">捕まえる</button>
+            <button class="btn" data-js="reset">逃げる</button>
+          </div>
+        `;
+        $('.wrapper').html(html);
       }
 
       function getSuccessMessageHtml(imageUrl) {
-        return `
-        <p class="name">ゲットしました</p>
-        <div>
-          <img class="img" src="${imageUrl}" alt="">
-        </div>
-        <button class="btn" data-js="reset">戻る</button>
-      `;
+        const html = `
+          <p class="name">ゲットしました</p>
+          <div>
+            <img class="img" src="${imageUrl}" alt="">
+          </div>
+          <button class="btn" data-js="reset">戻る</button>
+        `;
+        $('.wrapper').html(html);
       }
 
       $('#wrapper').on('click', '#pokemon_search', function () {
@@ -60,7 +63,7 @@
             let pokemonName = res.name;
             let pokemonImageUrl = res.sprites.front_default;
 
-            $('.wrapper').html(getPokemonInitialDisplayHtml(pokemonName, pokemonImageUrl));
+            getPokemonInitialDisplayHtml(pokemonName, pokemonImageUrl);
 
             $.ajax({
               url: res.species.url,
@@ -76,7 +79,7 @@
           })
 
           .fail(function () {
-            $('.wrapper').html(getFailedMessageHtml());
+            getFailedMessageHtml();
           });
       });
 
@@ -92,10 +95,10 @@
               $('.wrapper').html(getSuccessMessageHtml(pokeballRes.sprites.default));
             })
             .fail(function (err) {
-              $('.wrapper').html(getFailedMessageHtml());
+              getFailedMessageHtml();
             });
         } else {
-          $('.wrapper').html(getFailedMessageHtml());
+          getFailedMessageHtml();
         }
       });
 
