@@ -49,14 +49,24 @@
           url: 'https://pokeapi.co/api/v2/pokemon/' + randomPokemonId,
           method: 'GET'
         })
-          .done(function (res) {
-            $('.wrapper').html(encountHtml);
-            $('.name').text(res.name);
-            $('.img').attr('src', res.sprites.front_default);
+        .done(function (res) {
+        $('.wrapper').html(encountHtml);
+        $('.img').attr('src', res.sprites.front_default);
+        $.ajax({
+          url: res.species.url,
+          method: 'GET'
+        })
+          .done(function (speciesRes) {
+            let jpName = speciesRes.names.find(name => name.language.name === 'ja').name;
+            $('.name').text(jpName);
           })
-          .fail(function (err) {
-            $('.wrapper').html(failHtml);
+          .fail(function () {
+            $('.name').text('名前の取得に失敗しました');
           });
+      })
+      .fail(function () {
+        $('.wrapper').html(failHtml);
+      });
       });
 
       $('#wrapper').on('click', '#catch', function () {
