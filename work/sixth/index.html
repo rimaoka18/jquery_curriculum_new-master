@@ -16,7 +16,99 @@
     <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
   </div>
   <script src="../../common/js/jquery.js"></script>
+
   <script>
+
+    $(document).ready(function () {
+      function getFailedMessageHtml() {
+        const html = `
+          <p class="text">逃げられてしまった...</p>
+          <button class="btn mt" data-js="reset">戻る</button>
+        `;
+        $('.wrapper').html(html);
+      }
+
+      function getPokemonInitialDisplayHtml(name, imageURL) {
+        const html = `
+          <p class="name">${name || '名前なし'}</p>
+          <div>
+            <img class="img" src="${imageURL || ''}" alt="">
+          </div>
+          <div>
+            <button class="btn" id="catch">捕まえる</button>
+            <button class="btn" data-js="reset">逃げる</button>
+          </div>
+        `;
+        $('.wrapper').html(html);
+      }
+
+      function getSuccessMessageHtml(imageUrl) {
+        const html = `
+          <p class="name">ゲットしました</p>
+          <div>
+            <img class="img" src="${imageUrl}" alt="">
+          </div>
+          <button class="btn" data-js="reset">戻る</button>
+        `;
+        $('.wrapper').html(html);
+      }
+
+      $('#wrapper').on('click', '#pokemon_search', function () {
+        let randomPokemonId = Math.floor(Math.random() * 151) + 1;
+        $.ajax({
+          url: 'https://pokeapi.co/api/v2/pokemon/' + randomPokemonId,
+          method: 'GET'
+        })
+          .done(function (res) {
+            let pokemonName = res.name;
+            let pokemonImageUrl = res.sprites.front_default;
+
+            getPokemonInitialDisplayHtml(pokemonName, pokemonImageUrl);
+
+            $.ajax({
+              url: res.species.url,
+              method: 'GET'
+            })
+              .done(function (speciesRes) {
+                let jpName = speciesRes.names.find(name => name.language.name === 'ja').name;
+                $('.name').text(jpName);
+              })
+              .fail(function () {
+                $('.name').text('名前の取得に失敗しました');
+              });
+          })
+
+          .fail(function () {
+            getFailedMessageHtml();
+          });
+      });
+
+      $('#wrapper').on('click', '#catch', function () {
+        let isCatchSuccessful = Math.random() < 0.5;
+
+        if (isCatchSuccessful) {
+          $.ajax({
+            url: 'https://pokeapi.co/api/v2/item/4',
+            method: 'GET'
+          })
+            .done(function (pokeballRes) {
+              $('.wrapper').html(getSuccessMessageHtml(pokeballRes.sprites.default));
+            })
+            .fail(function (err) {
+              getFailedMessageHtml();
+            });
+        } else {
+          getFailedMessageHtml();
+        }
+      });
+
+      $('#wrapper').on('click', '[data-js="reset"]', function () {
+        $('.wrapper').html(`
+         <button type="button" class="btn search-btn" id="pokemon_search">ポケモンを探す</button>
+       `);
+      });
+    });
+
   </script>
 </body>
 
